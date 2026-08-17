@@ -1,0 +1,7 @@
+index,n,beta_sector,t_sector,s_size,t_size,r2
+chinext,68,0.99,82.1,0.75,37.0,0.994
+chinext50,68,1.06,46.9,0.92,23.4,0.987
+chinext300,68,1.02,110.4,0.35,16.3,0.995
+basic,68,1.02,135.7,0.21,7.7,0.996
+chinext200,13,,,,,
+smallcap,13,,,,,
