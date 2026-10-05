@@ -1,0 +1,11 @@
+spread,sample,n,r2,t_mom,t_vol,t_dvol_pct
+composite-csi300,full,120,0.073,-2.22,2.2,1.82
+composite-csi300,ex-crash,106,0.022,-0.25,1.5,0.65
+chinext-comp,full,120,0.02,0.64,-1.13,-0.47
+chinext-comp,ex-crash,106,0.02,0.83,-1.43,-0.03
+chinext50-comp,full,91,0.071,2.65,-1.08,-1.22
+chinext50-comp,ex-crash,91,0.071,2.65,-1.08,-1.22
+chinext300-comp,full,108,0.03,-0.02,-1.18,-1.43
+chinext300-comp,ex-crash,105,0.03,0.05,-1.23,-1.41
+basic-comp,full,120,0.034,-0.41,-1.03,-1.98
+basic-comp,ex-crash,106,0.024,-0.43,-0.25,-1.62

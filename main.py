@@ -7,6 +7,7 @@ import evaluate
 import oos
 import regressions
 import risk
+import robustness
 
 if __name__ == "__main__":
     if not os.path.exists(os.path.join(data.DATA_DIR, "prices_composite.csv")):
@@ -17,6 +18,9 @@ if __name__ == "__main__":
     print("== in-sample regressions ==")
     summary, _ = regressions.run_all()
     print(summary.to_string(index=False))
+
+    print("\n== robustness: drop the 2015 crash ==")
+    print(robustness.run_excrash().to_string(index=False))
 
     print("\n== out-of-sample (80/20) ==")
     print(oos.run_all().to_string(index=False))
