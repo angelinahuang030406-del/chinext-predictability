@@ -18,6 +18,19 @@ RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results"
 TRAIN_FRAC = 0.8
 
 
+def bootstrap_ci(e_model, e_bench, n_boot=2000, seed=0):
+    """95% interval for OOS R^2 by resampling test months. With ~20 test
+    months this is wide, which is the point: it shows how little a single
+    OOS number can tell you."""
+    rng = np.random.default_rng(seed)
+    n = len(e_model)
+    stats = []
+    for _ in range(n_boot):
+        i = rng.integers(0, n, n)
+        stats.append(1 - (e_model[i] ** 2).sum() / (e_bench[i] ** 2).sum())
+    return np.percentile(stats, [2.5, 97.5])
+
+
 def evaluate_spread(name, panel):
     net = study_sample(panel)
     if len(net) < MAIN_FLOOR:
@@ -33,11 +46,13 @@ def evaluate_spread(name, panel):
 
     e_model = test["y"] - pred
     e_bench = test["y"] - bench
+    lo, hi = bootstrap_ci(e_model.to_numpy(), e_bench.to_numpy())
     row = {
         "spread": name,
         "train_n": len(train), "test_n": len(test),
         "test_span": f"{test.index.min():%Y-%m} -> {test.index.max():%Y-%m}",
         "oos_r2": round(1 - (e_model ** 2).sum() / (e_bench ** 2).sum(), 4),
+        "ci95_lo": round(lo, 3), "ci95_hi": round(hi, 3),
         "hit_model": round((np.sign(test["y"]) == np.sign(pred)).mean(), 3),
         "hit_bench": round((np.sign(test["y"]) == np.sign(bench)).mean(), 3),
     }

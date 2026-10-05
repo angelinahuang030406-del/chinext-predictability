@@ -17,8 +17,8 @@ LABELS = {
     "chinext300-comp": "ChiNext300 - Comp",
     "basic-comp": "Basic - Comp",
 }
-# spreads whose in-sample regression had a |t| >= 1.96 factor
-INSAMPLE_SIG = {"composite-csi300", "chinext50-comp"}
+# spreads whose in-sample regression had a factor with p < 0.05
+INSAMPLE_SIG = {"composite-csi300", "chinext50-comp", "basic-comp"}
 
 
 def fig_oos():
