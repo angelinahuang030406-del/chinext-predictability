@@ -40,26 +40,33 @@ free sources. The differences, honestly listed:
 | LargeCap spread | 109 months (backfilled prices) | ~33 months of real data in-window: below the 36-month floor, so descriptive only |
 | ChiNext200 / SmallCap | exploratory appendix | no usable in-window sample |
 
-Two consequences worth stating. First, the no-backfill data is a feature,
-not a bug: the original study's robustness checks showed the one marginal
-signal on the LargeCap spread was an artifact of backfilled history, and
-the public data never contained that history to begin with. Second, the
-valuation factor was insignificant everywhere in the original study at
-every horizon, so dropping it does not change any conclusion.
+The no-backfill data is a feature, not a bug: backfilled history is
+simulated by the index provider after the fact, under rules designed with
+hindsight, and any signal found in it can't be checked against reality.
+The public data never contains it. The price is sample size for the
+youngest indices.
 
 If you have licensed data, `data.py` is the only file to swap: cache
 prices as `data/prices_<name>.csv` and PE as `data/pe_<name>.csv`, and the
 rest of the pipeline (including the valuation factor) activates unchanged.
 
-## Admission and tiers (pre-registered, mechanical)
+## Admission and tiers (fixed in advance, mechanical)
 
 A spread enters the main regressions only if its complete-case sample in
 the study window is at least 60 months; 36–60 months goes to an appendix;
-below 36, descriptive statistics only. These thresholds were fixed in the
-original study before any results were seen, and this rebuild keeps them.
+below 36, descriptive statistics only. These thresholds were written down
+before any results were seen, and this rebuild keeps them.
 
-## Why no walk-forward here
+## Why one out-of-sample scheme
 
-The original study also ran an expanding-window walk-forward; conclusions
-matched the 80/20 split (both negative). The public version keeps only the
-80/20 split for simplicity — one out-of-sample scheme, fully explainable.
+The 80/20 chronological split is the only out-of-sample test here, kept
+deliberately simple: train once, freeze, predict. With 19-24 test months
+per spread a single OOS R² is noisy, which is why `oos.py` also reports a
+bootstrap interval — it shows how little any one number can say.
+
+## Why the crash check
+
+2015-01 to 2016-02 (the ChiNext bubble, crash, and circuit-breaker
+episode) is the most extreme stretch in the sample. A coefficient that
+owes its t-stat to fourteen months of panic is not a rule. `robustness.py`
+reruns every main regression without them.
