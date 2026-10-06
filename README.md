@@ -4,8 +4,8 @@ Testing whether return differences between eight ChiNext broad-market
 indices are predictable — with strict point-in-time discipline and tests
 that fail when something leaks. **The answer is no detectable
 predictability: out of sample, the model can't be told apart from a plain
-historical mean. What separates these indices is risk, not expected
-return.**
+historical mean. What the data can tell apart is risk — average return
+differences, if they exist, are too small for ten years to detect.**
 
 ![Out-of-sample: model vs historical-mean benchmark](results/fig_oos.png)
 
@@ -27,8 +27,9 @@ DESIGN_NOTES.md lists exactly what differs and why.
 
 ## Research design
 
-The eight indices correlate at 0.95+ monthly, so regressing each one
-separately would estimate the same thing eight times. I split the problem
+The indices' monthly returns correlate at 0.93 to 1.00 with each other
+(median 0.98), so regressing each one separately would estimate the same
+thing several times over. I split the problem
 into two layers: ChiNext-vs-CSI300 (is the sector worth holding?) and
 each-index-vs-Composite (which slice?). By construction the two layers add
 back up to each index's excess return over CSI 300.
@@ -72,7 +73,7 @@ the target to the current month, and fitting on the full sample — and
 each one turns `pytest` red.
 
 On the regression side: the spreads are stationary, factor VIFs stay
-under 1.5, and Durbin-Watson sits at 1.9-2.1; inference uses Newey-West
+under 1.5, and Durbin-Watson sits at 1.86-2.08; inference uses Newey-West
 errors throughout. The tiering rules were fixed before any results were
 seen.
 
@@ -112,31 +113,42 @@ predictability" is the honest summary, consistent with Welch & Goyal
 (2008), whose paper I should have read before building the model rather
 than after.
 
-What actually distinguishes these indices is risk. Over 2015-2024 they all
-run at 32-35% annualized volatility (CSI 300: 21%) with maximum drawdowns
-of -63% to -71%, and a two-factor decomposition (sector + size) gets R²
-above 0.98 for every index I can estimate. Sector betas are all ~1.0; the
-only real dimension is size tilt: +0.92 (ChiNext 50) down to +0.21
-(Basic), with the two young small-cap indices too short to estimate on
-public data. Two details I didn't expect: the index selected by trading
-volume (ChiNext 50) carries the most extreme large-cap tilt, and the index
-built to cover 85% of market cap behaves almost exactly like the whole
-market (s = 0.21). Construction documents tell you the sign of a tilt, not
-its size.
+What the data can tell apart is risk. Over 2015-2024 the five indices
+with full histories run at 32-35% annualized volatility (LargeCap, from
+2019 only, 31%; CSI 300: 21%) with maximum drawdowns of -63% to -71%, and
+a two-factor decomposition (sector + size) gets R² above 0.98 for every
+index I can estimate. Sector betas are all ~1.0; the only real dimension
+is size tilt: +0.92 (ChiNext 50) down to +0.21 (Basic), with the two
+young small-cap indices too short to estimate on public data. Two details
+I didn't expect: the index selected by trading volume (ChiNext 50)
+carries the most extreme large-cap tilt, and the index built, per its
+methodology, to cover 85% of market cap behaves almost exactly like the
+whole market (s = 0.21). Construction documents tell you the sign of a
+tilt, not its size.
+
+Average returns are a different story, and I first got this part wrong.
+An earlier draft said these indices differ in risk "not expected return".
+The data can't support the second half. Ten years of monthly data can
+only detect an average gap of 2.8% a year (Basic vs Composite) up to 19%
+a year (Composite vs CSI 300) — and ChiNext Composite's actual lead over
+CSI 300, 7.6% a year, sits well inside that band. "No detectable
+difference" is all the data allows; it is not the same as "no
+difference".
 
 ![Size tilt is the only real difference](results/fig_size_tilt.png)
 
 ## Limitations
 
-Price indices only, so dividends are ignored (understates CSI 300 by
-1-2%/yr — a level effect, not a timing one). The valuation factor is
-absent, and the turnover factor is proxied by dollar volume. Only the
-one-month horizon is tested. The three youngest indices contribute little
-or nothing — that's the honest price of refusing backfilled history. And
-on multiple testing: four of 15 coefficients clearing 5% is more than
-chance alone would hand you (about 0.75 expected), so the in-sample
-signals aren't pure noise from running many tests — but the crash check
-and the out-of-sample results say they don't hold up as rules either.
+Price indices only, so dividends are ignored; CSI 300 pays more of them,
+so its total return is understated relative to ChiNext. The valuation
+factor is absent, and the turnover factor is proxied by dollar volume.
+Only the one-month horizon is tested. The three youngest indices
+contribute little or nothing — that's the honest price of refusing
+backfilled history. On multiple testing: four of 15 coefficients clearing
+5% is more than running many tests would hand you by chance (about 0.75
+expected), so multiple testing alone doesn't explain them. The crash
+check and the out-of-sample results do: they are features of this
+particular sample, which is what "learned noise" means above.
 
 ## Repo structure
 
@@ -144,7 +156,8 @@ and the out-of-sample results say they don't hold up as rules either.
 factors with expanding windows · `regressions.py` runs OLS + Newey-West
 and diagnostics · `robustness.py` reruns them without the 2015 crash ·
 `oos.py` does the 80/20 evaluation with bootstrap intervals · `risk.py`
-computes risk metrics and the two-factor loadings · `evaluate.py` makes
+computes risk metrics, the two-factor loadings, and the smallest return
+gap the data could detect · `evaluate.py` makes
 the figures · `main.py` runs everything in order · `tests/` holds the
 leakage tests.
 

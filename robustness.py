@@ -2,9 +2,7 @@
 
 The window 2015-01 to 2016-02 covers the ChiNext bubble, the crash, and the
 circuit-breaker episode. If a coefficient owes its significance to that one
-stretch, it is a crash artifact, not a rule. The original (licensed-data)
-study found exactly that for the sector-spread momentum; this module makes
-the same check reproducible on public data.
+stretch, it is a crash artifact, not a rule.
 """
 
 import os
