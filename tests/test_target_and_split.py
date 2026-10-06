@@ -31,6 +31,17 @@ def test_target_is_next_month_spread(index, bench):
         assert np.isclose(panel.loc[t, "y"], spread.loc[next_month], rtol=1e-10)
 
 
+def test_oos_split_is_chronological():
+    """The test months must be the last 20% of the sample. A random split
+    trains on the future to predict the past -- the scramble test below
+    can't see that, because test-row targets still aren't used in the fit."""
+    for name, index, bench in features.SPREADS[:5]:
+        panel = features.build_spread(index, bench)
+        net = features.study_sample(panel)
+        _, preds = oos.evaluate_spread(name, panel)
+        assert list(preds.index) == list(net.index[-len(preds):])
+
+
 def test_oos_predictions_ignore_test_targets():
     name, index, bench = features.SPREADS[0]
     panel = features.build_spread(index, bench)
