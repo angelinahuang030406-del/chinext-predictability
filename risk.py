@@ -75,6 +75,35 @@ def two_factor_loadings():
     return pd.DataFrame(rows)
 
 
+def return_detectability():
+    """How big an average return gap ten years of data could even detect.
+
+    For each spread: annualized mean, its standard error, and the minimum
+    detectable difference at 5% significance with 80% power (2.8 standard
+    errors). A spread whose mean sits inside that band is not evidence of
+    equal returns -- only evidence that the gap, if any, is too small to see.
+    """
+    pairs = [("composite", "csi300"), ("chinext", "composite"), ("chinext50", "composite"),
+             ("chinext300", "composite"), ("basic", "composite")]
+    rows = []
+    for a, b in pairs:
+        s = (monthly_series(a)["ret"] - monthly_series(b)["ret"]).loc[RISK_START:RISK_END].dropna()
+        se = s.std() * np.sqrt(12) / np.sqrt(len(s) / 12)
+        rows.append({"spread": f"{a}-{b}", "n": len(s),
+                     "ann_mean": round(s.mean() * 12, 3),
+                     "se": round(se, 3), "min_detectable": round(2.8 * se, 3)})
+    return pd.DataFrame(rows)
+
+
+def correlation_range():
+    names = ["composite", "chinext", "chinext50", "chinext300", "basic", "largecap"]
+    R = pd.DataFrame({n: monthly_series(n)["ret"] for n in names}).loc[RISK_START:RISK_END]
+    C = R.corr(min_periods=24).to_numpy()
+    v = C[np.triu_indices_from(C, 1)]
+    v = v[~np.isnan(v)]
+    return {"min": round(v.min(), 2), "median": round(float(np.median(v)), 2), "max": round(v.max(), 2)}
+
+
 if __name__ == "__main__":
     os.makedirs(RESULTS_DIR, exist_ok=True)
     rm = risk_metrics()

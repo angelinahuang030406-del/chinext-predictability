@@ -30,8 +30,13 @@ if __name__ == "__main__":
     ld = risk.two_factor_loadings()
     rm.to_csv(os.path.join(risk.RESULTS_DIR, "risk_metrics.csv"), index=False)
     ld.to_csv(os.path.join(risk.RESULTS_DIR, "loadings.csv"), index=False)
+    det = risk.return_detectability()
+    det.to_csv(os.path.join(risk.RESULTS_DIR, "return_detectability.csv"), index=False)
     print(rm.to_string(index=False))
     print(ld.to_string(index=False))
+    print("\nhow big a return gap ten years can detect:")
+    print(det.to_string(index=False))
+    print("pairwise return correlations:", risk.correlation_range())
 
     print("\n== figures ==")
     evaluate.fig_oos()
